@@ -13,6 +13,7 @@ public class HashTable {
     PrintWriter pw = null;
 	// 기본 배열의 크기
 	private final int DEFAULT_CAPACITY = 59;
+	private final int DEFAULT_CAPACITY_2 = 31;
 	private Node[] array;
 	private int count;
 
@@ -61,22 +62,48 @@ public class HashTable {
 	// -------------------------------선형조사-------------------------------//
 	public void linear_insert(int value) throws IOException {
 		int key = hash(value);
-		while (array[key] != null && array[key].getKey() != key) {
-			count++;
+		while (array[key] != null) {
+			System.out.print("-->["+key+"]");
 			key = (key + 1) % DEFAULT_CAPACITY;
+			count++;
 		}
 
 		array[key] = new Node(key, value);
+		System.out.println("-->["+key+"]");
 
 	}
 
 	// -------------------------------이차원조사-------------------------------//
-	public void quadratic_insert() {
+	public void quadratic_insert(int value) {
+		int key = hash(value);
+		int i=0;
+		while (array[key] != null) {
+			System.out.print("-->["+key+"]");
+			i++;
+			key = (key + (i*i)) % DEFAULT_CAPACITY;
+			
+			count++;
+		}
+
+		array[key] = new Node(key, value);
+		System.out.println("-->["+key+"]");
 
 	}
 
 	// -------------------------------더블해싱-------------------------------//
-	public void double_insert() {
+	public void double_insert(int value) {
+		int key = hash(value);
+		int i=0;
+		while (array[key] != null) {
+			System.out.print("-->["+key+"]");
+			i++;
+			key = ((key%DEFAULT_CAPACITY)+i*(key%DEFAULT_CAPACITY_2)) % DEFAULT_CAPACITY;
+			
+			count++;
+		}
+
+		array[key] = new Node(key, value);
+		System.out.println("-->["+key+"]");
 
 	}
 
@@ -127,23 +154,33 @@ public class HashTable {
 		System.out.println("--------------------------------------------------------------------");
 	}
 
+	void Printcount() {
+		System.out.println("***COUNT***:"+count);
+	}
 	public static void main(String[] args) throws IOException {
 
-		HashTable ht = new HashTable();
+		HashTable linearHt = new HashTable();
+		HashTable quadraticHt = new HashTable();
+		HashTable doubleHt = new HashTable();
 		Node node;
 
-		BufferedReader br = new BufferedReader(new FileReader("E:/algorithm/Al06_20181105/src/Data1.txt"));
+		BufferedReader br = new BufferedReader(new FileReader("C:/Users/Administrator/Desktop/Data1.txt"));
 
 		for (int i = 0; i < 24; i++) {
 			String line = br.readLine();
 			if (line == null) {
 				break;
 			} else {
-				ht.linear_insert(Integer.parseInt(line));
+				System.out.print(line);
+				//linearHt.linear_insert(Integer.parseInt(line));
+				//quadraticHt.quadratic_insert(Integer.parseInt(line));
+				doubleHt.double_insert(Integer.parseInt(line));
 			}
 		}
-		ht.print();
+		doubleHt.Printcount();
+		//ht.print();
 
 	}
+
 
 }
