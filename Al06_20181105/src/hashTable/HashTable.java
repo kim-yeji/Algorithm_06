@@ -4,18 +4,23 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
 public class HashTable {
 	File file = new File("C:/Users/Administrator/Desktop/Result1.txt");
-    BufferedWriter bw = null;
-    PrintWriter pw = null;
+	BufferedWriter bw = null;
+	PrintWriter pw = null;
 	// 기본 배열의 크기
 	private final int DEFAULT_CAPACITY = 59;
 	private final int DEFAULT_CAPACITY_2 = 31;
 	private Node[] array;
 	private int count;
+
+	public int getCount() {
+		return count;
+	}
 
 	public HashTable() {
 		array = new Node[DEFAULT_CAPACITY];
@@ -46,141 +51,169 @@ public class HashTable {
 			this.value = value;
 		}
 
-
 	}
-
-	// 키에 대한 hash 값을 구하는 메소드
-	// 단순히 키를 문자열로 바꾼후 해당 문자의 아스키(ASCII) 값의 합을 이용하는 해시 함수 사용
-	// 배열의 크기를 넘지 않기 위해 나머지 연산(Modular)을 사용
 
 	public int hash(int value) {
-
 		return value % DEFAULT_CAPACITY;
 	}
-
 
 	// -------------------------------선형조사-------------------------------//
 	public void linear_insert(int value) throws IOException {
 		int key = hash(value);
 		while (array[key] != null) {
-			System.out.print("-->["+key+"]");
+			System.out.print("-->[" + key + "]");
 			key = (key + 1) % DEFAULT_CAPACITY;
 			count++;
 		}
 
 		array[key] = new Node(key, value);
-		System.out.println("-->["+key+"]");
+		System.out.println("-->[" + key + "]");
 
 	}
 
 	// -------------------------------이차원조사-------------------------------//
 	public void quadratic_insert(int value) {
 		int key = hash(value);
-		int i=0;
+		int i = 0;
 		while (array[key] != null) {
-			System.out.print("-->["+key+"]");
+			System.out.print("-->[" + key + "]");
 			i++;
-			key = (key + (i*i)) % DEFAULT_CAPACITY;
-			
+			key = (key + (i * i)) % DEFAULT_CAPACITY;
+
 			count++;
 		}
 
 		array[key] = new Node(key, value);
-		System.out.println("-->["+key+"]");
+		System.out.println("-->[" + key + "]");
 
 	}
 
 	// -------------------------------더블해싱-------------------------------//
 	public void double_insert(int value) {
 		int key = hash(value);
-		int i=0;
-		while (array[key] != null) {
-			System.out.print("-->["+key+"]");
+		int i = 0;
+		while (array[key] != null ) {
+			System.out.print("-->[" + key + "]");
 			i++;
-			key = ((key%DEFAULT_CAPACITY)+i*(key%DEFAULT_CAPACITY_2)) % DEFAULT_CAPACITY;
-			
+			key++; // 충돌방지
+			key = ((key % DEFAULT_CAPACITY) + i * (key % DEFAULT_CAPACITY_2)) % DEFAULT_CAPACITY;
+
 			count++;
 		}
 
 		array[key] = new Node(key, value);
-		System.out.println("-->["+key+"]");
+		System.out.println("-->[" + key + "]");
 
 	}
 
-	public int linear_search(int key) {
-		int i = hash(key);
-		while (array[i] != null) {
-			if (array[i].equals(key))
-				return array[i].getValue();
-			i = (i + 1) % DEFAULT_CAPACITY;
-		}
-		return 0;
-
-	}
-
-	//해당 키 값이 있는지 확인
-	public boolean contains(int hash, int key) {
-		for (int i = 0; i < DEFAULT_CAPACITY; i++) {
-			if (array[hash].equals(key)) {
+	public boolean linear_search(int value) throws IOException {
+		int key = hash(value);
+		while (array[key] != null) {
+			if (array[key].getValue() == value && array[key].getValue() != -1) {
+				bw = new BufferedWriter(new FileWriter(file, true));
+				pw = new PrintWriter(bw, true);
+				if (file.isFile() && file.canWrite()) {
+					// 쓰기
+					pw.println(array[key].getValue() + "[" + key + "]");
+				}
+				bw.close();
+				System.out.println(array[key].getValue() + "[" + key + "]");
 				return true;
-			}else {
-				return false;
+			} else {
+				key = (key + 1) % DEFAULT_CAPACITY;
 			}
+
 		}
-
 		return false;
 	}
 
-	public boolean remove(int key) {
-		return linear_delete(hash(key), key);
+	public boolean linear_delete(int value) {
+		int key = hash(value);
+		while (array[key] != null) {
+			System.out.print("-->[" + key + "]");
+			if (array[key].getValue() == value && array[key].getValue() != -1) {
+				array[key].setValue(-1);
+				System.out.print("-->[" + key + "]:" + array[key].getValue());
+				System.out.println();
+				return true;
+			} else {
+				key = (key + 1) % DEFAULT_CAPACITY;
+			}
+
+		}
+		return false;
 	}
 
-	public boolean linear_delete(int hash, int key) {
-		return false;
-		
-	}
-	
 	public void deleteFile() {
-		if( file.exists() ){
-            file.delete();
-        }
+		if (file.exists()) {
+			file.delete();
+		}
 	}
 
-	// 배열 요소를 출력하기 위한 메소드
-	void print() {
-		for (int i = 0; i < array.length; ++i)
-			System.out.println(array[i] == null ? "----"+"["+(i+1)+"]" : array[i].getValue()+" "+"["+(i+1)+"]");
-		System.out.println("***COUNT***:"+count);
-		System.out.println("--------------------------------------------------------------------");
+	public void printArray() {
+		for (int i = 0; i < 59; i++) {
+			if (array[i] == null) {
+				System.out.println("null");
+				continue;
+			}
+			System.out.println("[" + i + "]" + array[i].getValue());
+		}
 	}
 
-	void Printcount() {
-		System.out.println("***COUNT***:"+count);
-	}
 	public static void main(String[] args) throws IOException {
 
 		HashTable linearHt = new HashTable();
 		HashTable quadraticHt = new HashTable();
 		HashTable doubleHt = new HashTable();
-		Node node;
 
-		BufferedReader br = new BufferedReader(new FileReader("C:/Users/Administrator/Desktop/Data1.txt"));
+		BufferedReader data1 = new BufferedReader(new FileReader("C:/Users/Administrator/Desktop/Data1.txt"));
+		BufferedReader data2 = new BufferedReader(new FileReader("C:/Users/Administrator/Desktop/Data2.txt"));
+		BufferedReader data3 = new BufferedReader(new FileReader("C:/Users/Administrator/Desktop/Data3.txt"));
 
-		for (int i = 0; i < 24; i++) {
-			String line = br.readLine();
-			if (line == null) {
-				break;
-			} else {
-				System.out.print(line);
-				//linearHt.linear_insert(Integer.parseInt(line));
-				//quadraticHt.quadratic_insert(Integer.parseInt(line));
-				doubleHt.double_insert(Integer.parseInt(line));
-			}
+		linearHt.deleteFile();
+		String line = null;
+		System.out.println("==============선형조사==============");
+		while ((line = data1.readLine()) != null) {
+			System.out.print(line);
+			linearHt.linear_insert(Integer.parseInt(line));
 		}
-		doubleHt.Printcount();
-		//ht.print();
+		
+		System.out.println();
+		System.out.println("=============이차원조사=============");
+		line = null;
+		data1 = new BufferedReader(new FileReader("C:/Users/Administrator/Desktop/Data1.txt"));
+		while ((line = data1.readLine()) != null) {
+			System.out.print(line);
+			quadraticHt.quadratic_insert(Integer.parseInt(line));
+		}
+
+		System.out.println();
+		System.out.println("==============더블해싱==============");
+		data1 = new BufferedReader(new FileReader("C:/Users/Administrator/Desktop/Data1.txt"));
+		while ((line = data1.readLine()) != null) {
+			System.out.print(line);
+			doubleHt.double_insert(Integer.parseInt(line));
+		}
+		System.out.println("선형조사 충돌 횟수:" + linearHt.getCount());
+		System.out.println("이차원조사 충돌 횟수:" + quadraticHt.getCount());
+		System.out.println("더블해싱 충돌 횟수:" + doubleHt.getCount());
+
+		System.out.println("---------Data2 File Search---------");
+		line = null;
+		while ((line = data2.readLine()) != null) {
+			linearHt.linear_search(Integer.parseInt(line));
+			// quadraticHt.quadratic_insert(Integer.parseInt(line));
+			// doubleHt.double_insert(Integer.parseInt(line));
+		}
+
+		System.out.println("---------Data3 File Delete---------");
+		line = null;
+		while ((line = data3.readLine()) != null) {
+			System.out.print(line);
+			linearHt.linear_delete(Integer.parseInt(line));
+		}
+		linearHt.printArray();
 
 	}
-
 
 }
